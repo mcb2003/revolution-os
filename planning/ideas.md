@@ -620,9 +620,9 @@ You're talking about building a **project-based operating system** where *everyt
 
 ---
 
-## 🧠 Core Concept: Projects as First-Class System Objects
+### 🧠 Core Concept: Projects as First-Class System Objects
 
-### What is a "Project"?
+#### What is a "Project"?
 
 A **persistent workspace context** that includes:
 
@@ -637,9 +637,9 @@ Projects are *self-contained*, portable, sharable, versionable.
 
 ---
 
-## 🧱 How It Might Work Under the Hood
+### 🧱 How It Might Work Under the Hood
 
-### Project Metadata Store
+#### Project Metadata Store
 
 Each project:
 
@@ -666,26 +666,26 @@ Each project:
 }
 ```
 
-### Storage
+#### Storage
 
 Projects are backed by real folders and files *when needed*, but enriched with context and metadata stored separately (à la `.git/`, but smarter and not hidden).
 
 ---
 
-## ✨ UX Ideas
+### ✨ UX Ideas
 
-### 🖥️ The Desktop *Is* the Current Project
+#### 🖥️ The Desktop *Is* the Current Project
 
 * "Switch project" = switch desktop state (like virtual desktops but persistent + content-aware)
 * Opening a project restores its whole world (windows, tabs, tasks)
 
-### 🧭 Project Browser
+#### 🧭 Project Browser
 
 * Like GNOME Activities + Spotlight + VS Code project picker
 * Searchable, filterable, taggable
 * Show most active, recently modified, by people involved, etc.
 
-### 🔄 Versioning and History
+#### 🔄 Versioning and History
 
 * Inspired by Git:
 
@@ -693,7 +693,7 @@ Projects are backed by real folders and files *when needed*, but enriched with c
   * Manual commit points
   * Timeline UI for viewing/rolling back state
 
-### 📦 Export/Import
+#### 📦 Export/Import
 
 * Archive whole project with content, structure, metadata (`.projectpkg`)
 * Great for:
@@ -702,7 +702,7 @@ Projects are backed by real folders and files *when needed*, but enriched with c
   * Long-term backups
   * Opening on another machine and picking up where you left off
 
-### 🧑‍🤝‍🧑 Real-Time Collaboration
+#### 🧑‍🤝‍🧑 Real-Time Collaboration
 
 * Project shared via local network or cloud service
 * Live presence in views (VS Code style)
@@ -710,7 +710,7 @@ Projects are backed by real folders and files *when needed*, but enriched with c
 
 ---
 
-## 🧩 Integration Points
+### 🧩 Integration Points
 
 * **Messaging system**: Conversations linked directly to projects
 * **Notification center**: Scoped to current project
@@ -718,7 +718,7 @@ Projects are backed by real folders and files *when needed*, but enriched with c
 
 ---
 
-## 🛑 Things to Avoid
+### 🛑 Things to Avoid
 
 * Don’t force people to create projects manually—let them emerge naturally, then let users formalize and organize them
 * Avoid project bloat—users should be able to close/archive them without fear of “losing stuff”
@@ -726,7 +726,7 @@ Projects are backed by real folders and files *when needed*, but enriched with c
 
 ---
 
-## 🧪 Real-World Analogs / Inspiration
+### 🧪 Real-World Analogs / Inspiration
 
 * VS Code’s workspace feature (but OS-wide)
 * Apple Final Cut Pro’s "Library" concept
@@ -751,7 +751,7 @@ Let’s unpack the core of your idea and flesh it out with practical, flexible c
 
 ---
 
-## 🎛️ Widgets/Gadgets as First-Class UI Components
+### 🎛️ Widgets/Gadgets as First-Class UI Components
 
 **TL;DR**: You’re describing a system-wide, embeddable UI component model, where **widgets = live views of content or tools**, and can be floated, docked, or embedded anywhere, across app boundaries.
 
@@ -764,9 +764,9 @@ Inspired by:
 
 ---
 
-## 🧩 Core Architecture Concepts
+### 🧩 Core Architecture Concepts
 
-### 1. **Content Viewers as Gadgetable Objects**
+#### 1. **Content Viewers as Gadgetable Objects**
 
 * Every content viewer widget (music player, calendar, image viewer, chat snippet, etc) implements a **Gadget Interface**.
 * Gadgets advertise:
@@ -776,7 +776,7 @@ Inspired by:
   * **Supported operations** (play, pause, color pick, etc)
   * Optional **UI capabilities** (size preferences, interaction modes)
 
-### 2. **System-Managed Docking and Embedding**
+#### 2. **System-Managed Docking and Embedding**
 
 * WM and windowing system manages:
 
@@ -790,7 +790,7 @@ Inspired by:
 
 This is a **UI composition engine** at the OS level, like a **live dashboard framework**.
 
-### 3. **Direct IPC for Embedded Widgets**
+#### 3. **Direct IPC for Embedded Widgets**
 
 * Host apps can talk to docked gadgets via:
 
@@ -800,11 +800,11 @@ This is a **UI composition engine** at the OS level, like a **live dashboard fra
 
 ---
 
-## 📦 Metadata and Contracts
+### 📦 Metadata and Contracts
 
 To keep things sane and avoid invalid combos (like dropping a terminal into a volume slider panel):
 
-### Widgets and Host Panels define:
+#### Widgets and Host Panels define:
 
 * **Allowed roles / categories** (e.g. `media_view`, `control_panel`, `status_tile`, `color_picker`)
 * **Required/accepted interfaces** (like `IGadgetColorPicker`, `IGadgetMediaControl`)
@@ -823,7 +823,7 @@ To keep things sane and avoid invalid combos (like dropping a terminal into a vo
 
 ---
 
-## 🤝 Cross-App Embedding
+### 🤝 Cross-App Embedding
 
 You're saying: **apps can host gadgets from other apps**—and they can **talk to them**. This is powerful and rare.
 
@@ -835,26 +835,26 @@ To pull this off securely and sanely:
 
 ---
 
-## 🖼️ Real Use Cases
+### 🖼️ Real Use Cases
 
-### ✅ System-Level
+#### ✅ System-Level
 
 * Weather + calendar + Now Playing on desktop, **context-aware per-project**
 * Drag in the current chat status into a dashboard for a team project
 
-### ✅ Embedded
+#### ✅ Embedded
 
 * A music player docked inside a photo editor (to pick mood-matching music)
 * A TODO list widget docked inside a document editor for live project task tracking
 
-### ✅ Cross-App
+#### ✅ Cross-App
 
 * Embed an image viewer from App A into App B's inspector pane, and have them sync zoom state
 * App A embeds a timeline widget from App B, which in turn reflects state of shared project content
 
 ---
 
-## 🔧 Developer Experience
+### 🔧 Developer Experience
 
 Make it stupidly easy to turn any viewer component into a gadget:
 
@@ -884,7 +884,7 @@ The system handles:
 
 ---
 
-## 🧠 Bonus: Make It Content-Aware
+### 🧠 Bonus: Make It Content-Aware
 
 If your system is **project-based** and **content-centric**, then:
 
@@ -893,7 +893,7 @@ If your system is **project-based** and **content-centric**, then:
 
 ---
 
-## 🔒 Security Thoughts
+### 🔒 Security Thoughts
 
 This kind of cross-app embedding *is dangerous if unchecked*:
 
@@ -917,9 +917,9 @@ Absolutely — and you're right to highlight this now, because **accessibility c
 
 ---
 
-## 🧭 Accessibility Principles You Should Build Into the Core
+### 🧭 Accessibility Principles You Should Build Into the Core
 
-### 1. **Semantic Roles for Everything**
+#### 1. **Semantic Roles for Everything**
 
 Every gadget, dock, and interactive component must:
 
@@ -932,7 +932,7 @@ Like what AT-SPI (Linux), UIA (Windows), and AX (macOS) expose.
 
 ---
 
-### 2. **Keyboard-First Design**
+#### 2. **Keyboard-First Design**
 
 Every operation must be navigable and executable via keyboard:
 
@@ -944,7 +944,7 @@ Bonus: offer **Vi-style navigation mode** (like Vimium), or **Emacs keybindings*
 
 ---
 
-### 3. **Assistive Tech Compatibility**
+#### 3. **Assistive Tech Compatibility**
 
 Define a system-native accessibility API early:
 
@@ -960,7 +960,7 @@ Expose all of this via a unified **system accessibility bus**, and optionally pr
 
 ---
 
-### 4. **Voice and Braille Support (Optional but Awesome)**
+#### 4. **Voice and Braille Support (Optional but Awesome)**
 
 With your content-centric model:
 
@@ -969,7 +969,7 @@ With your content-centric model:
 
 ---
 
-### 5. **Accessible Docking and Widget Management**
+#### 5. **Accessible Docking and Widget Management**
 
 Design your docking/embedding flow like this:
 
@@ -979,7 +979,7 @@ Design your docking/embedding flow like this:
 
 ---
 
-### 6. **Live Testing Tools**
+#### 6. **Live Testing Tools**
 
 Provide a **built-in Accessibility Inspector**:
 
@@ -989,7 +989,7 @@ Provide a **built-in Accessibility Inspector**:
 
 ---
 
-### 7. **Make Accessibility a Gadget Too**
+#### 7. **Make Accessibility a Gadget Too**
 
 Let screen reader be a **gadget like anything else**:
 
@@ -1001,7 +1001,7 @@ Imagine a collaborative screen reader that shows where the other blind user is r
 
 ---
 
-### 8. **Don't Reinvent Accessibility UI Toolkits**
+#### 8. **Don't Reinvent Accessibility UI Toolkits**
 
 If you're using or building your own widget toolkit, ensure:
 
@@ -1032,13 +1032,13 @@ Here’s how to structure that:
 
 ---
 
-## 🔄 "Contexts" vs. "Projects"
+### 🔄 "Contexts" vs. "Projects"
 
 Think of **projects** as *persistent*, user-defined, intentional workspaces.
 
 But alongside those, introduce **contexts** — *ephemeral, automatic, or system-managed groupings of activity*. You can then make both projects and non-project contexts feel consistent in the UI.
 
-### 🎯 Types of Non-Project Contexts
+#### 🎯 Types of Non-Project Contexts
 
 * **Now**: A smart context of recent, ongoing stuff (like GNOME’s "Activities")
 * **Inbox**: Content you've received or generated that isn't categorized yet
@@ -1051,7 +1051,7 @@ These aren’t stored as folders — they’re *views* into your global content 
 
 ---
 
-## 🧠 Smart Suggestions / Lazy Projecting
+### 🧠 Smart Suggestions / Lazy Projecting
 
 The OS could *suggest* “Would you like to save this as a project?” when it detects:
 
@@ -1063,7 +1063,7 @@ But don’t force it. Let the user say, “No thanks, this is a one-off.”
 
 ---
 
-## 🧰 Temporary "Scratchpads"
+### 🧰 Temporary "Scratchpads"
 
 Just like scratch buffers in Emacs or temp tabs in VS Code:
 
@@ -1074,7 +1074,7 @@ You could garbage collect them after inactivity, or let the user “promote” t
 
 ---
 
-## 🧩 Application-Specific Contexts That Aren’t Projects
+### 🧩 Application-Specific Contexts That Aren’t Projects
 
 Stuff like:
 
@@ -1092,7 +1092,7 @@ These could be:
 
 ---
 
-## 📚 Inbox + Notification History
+### 📚 Inbox + Notification History
 
 Since content often arrives before it’s categorized:
 
@@ -1103,7 +1103,7 @@ These become launching pads for actions or content exploration without needing t
 
 ---
 
-## 🧭 Unified Content Browser
+### 🧭 Unified Content Browser
 
 A single "Content Browser" lets the user:
 
@@ -1133,9 +1133,9 @@ Let’s break this into directions to explore:
 
 ---
 
-## 🌐 Open Standards & Protocols (Interop-First by Design)
+### 🌐 Open Standards & Protocols (Interop-First by Design)
 
-### Core Protocols to Support:
+#### Core Protocols to Support:
 
 * **ActivityPub** – for federated social media, notifications, presence, collaborative docs, etc.
 * **Matrix** – real-time messaging, VoIP, video, collaboration, encryption, rooms
@@ -1153,7 +1153,7 @@ Make these feel native. For example:
 
 ---
 
-## 🧩 Pluggable Service Providers
+### 🧩 Pluggable Service Providers
 
 Build a **service abstraction layer** into the OS that allows:
 
@@ -1169,7 +1169,7 @@ Could work like a fusion of:
 
 ---
 
-## 📡 Rich Real-Time Collaboration
+### 📡 Rich Real-Time Collaboration
 
 **At the OS level**, not per-app. Example ideas:
 
@@ -1181,7 +1181,7 @@ Could work like a fusion of:
 
 ---
 
-## 🗃️ Unified Identity & Contacts
+### 🗃️ Unified Identity & Contacts
 
 Identity is one of the big decentralization pain points.
 
@@ -1192,7 +1192,7 @@ Identity is one of the big decentralization pain points.
 
 ---
 
-## 📽️ Multi-Media as First-Class, Composable Content
+### 📽️ Multi-Media as First-Class, Composable Content
 
 * Audio, video, and streamed media are just content types with rich metadata
 * Support drag-and-drop embedding of media in notes, chats, whiteboards, etc.
@@ -1202,7 +1202,7 @@ Identity is one of the big decentralization pain points.
 
 ---
 
-## 🛰️ “Satellite” Companion Server
+### 🛰️ “Satellite” Companion Server
 
 We’ll dig into this later as you said, but briefly:
 
@@ -1220,7 +1220,7 @@ This makes the desktop OS *portable*, so your content follows you, not your devi
 
 ---
 
-## 💬 Content-Native Comments, Tags, and Sharing
+### 💬 Content-Native Comments, Tags, and Sharing
 
 Like Google Docs, but generalized:
 
@@ -1231,7 +1231,7 @@ Like Google Docs, but generalized:
 
 ---
 
-## 📚 Use Case Example: Publishing a Research Project
+### 📚 Use Case Example: Publishing a Research Project
 
 1. Create a project
 2. Add collaborators via Matrix
@@ -1262,9 +1262,9 @@ Here’s how to tackle it from both a **system architecture** and **UX design** 
 
 ---
 
-## 🏗️ Architectural Foundation: Unified Sync & Presence Layer
+### 🏗️ Architectural Foundation: Unified Sync & Presence Layer
 
-### 1. **Abstract Content Sync as a First-Class OS Service**
+#### 1. **Abstract Content Sync as a First-Class OS Service**
 
 * Every content item (chat, email, file, doc, feed) has an associated **sync state**:
 
@@ -1276,7 +1276,7 @@ Here’s how to tackle it from both a **system architecture** and **UX design** 
   * Sync state-driven behaviors (e.g., offline edits, retries, conflict resolution)
   * User feedback: “Waiting to send”, “Received but not acknowledged”, etc.
 
-### 2. **Presence & Capability System**
+#### 2. **Presence & Capability System**
 
 * Each person/device/resource has a known *presence*, exposed via federation-aware protocols (Matrix, MQTT, etc.)
 * The OS combines these into a coherent view:
@@ -1285,7 +1285,7 @@ Here’s how to tackle it from both a **system architecture** and **UX design** 
   * “This IPFS gateway is unreachable”
 * Could use a gossip-like service to propagate and cache presence data
 
-### 3. **Event Bus + Notification System**
+#### 3. **Event Bus + Notification System**
 
 * All protocols emit state-change events into a central bus (like D-Bus on steroids)
 * The desktop shell listens and responds (syncing status, animations, alerts)
@@ -1293,9 +1293,9 @@ Here’s how to tackle it from both a **system architecture** and **UX design** 
 
 ---
 
-## 🧠 UX Design Principles: Clarity Without Clutter
+### 🧠 UX Design Principles: Clarity Without Clutter
 
-### 1. **Make Sync State Visibly Intuitive**
+#### 1. **Make Sync State Visibly Intuitive**
 
 * Every piece of content gets a subtle indicator:
 
@@ -1306,7 +1306,7 @@ Here’s how to tackle it from both a **system architecture** and **UX design** 
   * 🔄 Syncing
 * Think of how Apple Notes, Dropbox, or GitHub Desktop subtly show sync status — but *everywhere*
 
-### 2. **Timeline View for Network State**
+#### 2. **Timeline View for Network State**
 
 * Imagine a unified log/timeline:
 
@@ -1316,7 +1316,7 @@ Here’s how to tackle it from both a **system architecture** and **UX design** 
   > “Bob read at 10:45”
 * Also useful for RSS/email polling history, Git push/fetch events, sync conflicts
 
-### 3. **Per-Project Network Health Summary**
+#### 3. **Per-Project Network Health Summary**
 
 * Show per-project indicators:
 
@@ -1324,12 +1324,12 @@ Here’s how to tackle it from both a **system architecture** and **UX design** 
   * “2 pending messages, 1 feed not updated in 8 hours”
 * Let users manually force sync if needed (power users want this)
 
-### 4. **Graceful Fallbacks for Unavailable Protocols**
+#### 4. **Graceful Fallbacks for Unavailable Protocols**
 
 * RSS not updating? Show cached data + last updated time
 * Message couldn’t be delivered? Option to retry, or fallback to email/SMS/other method if available
 
-### 5. **Triage Center / Notification Panel**
+#### 5. **Triage Center / Notification Panel**
 
 * Like a system notification center, but smarter:
 
@@ -1339,7 +1339,7 @@ Here’s how to tackle it from both a **system architecture** and **UX design** 
 
 ---
 
-## 🛰️ Optional Server-Side Relay / Broker
+### 🛰️ Optional Server-Side Relay / Broker
 
 If you build a Satellite Server (as mentioned earlier), it could help:
 
@@ -1350,7 +1350,7 @@ If you build a Satellite Server (as mentioned earlier), it could help:
 
 ---
 
-## 🚦 Dev / Debug Tools (Power Feature)
+### 🚦 Dev / Debug Tools (Power Feature)
 
 Let devs and nerdy users see:
 
@@ -1378,7 +1378,7 @@ Absolutely — that’s a **core insight** for a consumer OS: *most people aren�
 
 ---
 
-## 🧠 Philosophy: People, Not Apps
+### 🧠 Philosophy: People, Not Apps
 
 Modern content usage is:
 
@@ -1395,9 +1395,9 @@ So, your OS needs to:
 
 ---
 
-## 🧩 System Concept: *The People Graph*
+### 🧩 System Concept: *The People Graph*
 
-### What It Is:
+#### What It Is:
 
 A local database of “entities” — real people or orgs — who are followed.
 Each entity has:
@@ -1408,7 +1408,7 @@ Each entity has:
 * Aliases or handles on different services
 * Metadata: last update time, engagement stats, sync failures
 
-### OS Responsibilities:
+#### OS Responsibilities:
 
 * Handle discovery (e.g., “@[linus@linus.tech](mailto:linus@linus.tech)” resolves to Mastodon + YouTube)
 * Automatically follow *all available channels* for someone, if desired
@@ -1419,9 +1419,9 @@ Grayjay does this for media. You do it **for the whole OS**.
 
 ---
 
-## 🖥️ UX Implications
+### 🖥️ UX Implications
 
-### 1. **The "Following" Panel**
+#### 1. **The "Following" Panel**
 
 * Replaces the tired “apps for each social media” model
 * Think of it like an inbox:
@@ -1430,13 +1430,13 @@ Grayjay does this for media. You do it **for the whole OS**.
   * Tabs or filters: Posts, Videos, Streams, Events, Music, etc.
   * Rich preview and direct playback/viewing
 
-### 2. **People-Centric Notifications**
+#### 2. **People-Centric Notifications**
 
 * “Alice uploaded a new track on SoundCloud”
 * “Linus posted a rant on Mastodon”
 * Let users reply, share, or tag into a project
 
-### 3. **Offline and Archival**
+#### 3. **Offline and Archival**
 
 * The OS can archive content locally (like a podcast client or reader mode)
 * Let people “subscribe” to feeds for offline viewing
@@ -1444,9 +1444,9 @@ Grayjay does this for media. You do it **for the whole OS**.
 
 ---
 
-## 🔌 Protocol & Integration Layer
+### 🔌 Protocol & Integration Layer
 
-### Input:
+#### Input:
 
 * RSS/Atom (blogs, podcasts, channels)
 * ActivityPub (Mastodon, PeerTube, WriteFreely)
@@ -1454,7 +1454,7 @@ Grayjay does this for media. You do it **for the whole OS**.
 * IndieWeb (WebMentions, h-cards)
 * Maybe TikTok/Instagram via scraping or APIs
 
-### Actions:
+#### Actions:
 
 * Follow/unfollow (adds/removes from sync set)
 * Boost/share (to your own presence, if applicable)
@@ -1462,7 +1462,7 @@ Grayjay does this for media. You do it **for the whole OS**.
 
 ---
 
-## 🛠 Bonus Features
+### 🛠 Bonus Features
 
 * **Cross-feed search:** find “all videos tagged ‘guitar’ in my followed feeds”
 * **Pin content:** save stuff for later, tag it into projects
@@ -1471,7 +1471,7 @@ Grayjay does this for media. You do it **for the whole OS**.
 
 ---
 
-## 🌍 Social Identity
+### 🌍 Social Identity
 
 Each user can optionally create their **own social identity**, federated or not:
 
@@ -1482,7 +1482,7 @@ Each user can optionally create their **own social identity**, federated or not:
 
 ---
 
-## TL;DR
+### TL;DR
 
 Following people, not platforms, aligns perfectly with your OS’s **content-first** model. Build a **People Graph** into the OS that tracks creators across services, provides a unified feed of their output, and lets the user engage with it directly, consistently, and offline.
 
@@ -1502,7 +1502,7 @@ Let’s break it down:
 
 ---
 
-## 🧠 Core Idea: Background Task Steward (BTS)
+### 🧠 Core Idea: Background Task Steward (BTS)
 
 All long-running operations — downloads, file copies, syncs, software updates, transcoding, backup, uploads, installations — are:
 
@@ -1512,15 +1512,15 @@ All long-running operations — downloads, file copies, syncs, software updates,
 
 ---
 
-## 🏗️ Design Breakdown
+### 🏗️ Design Breakdown
 
-### 🔧 System Service: `btsd`
+#### 🔧 System Service: `btsd`
 
 * Lightweight daemon/service always running in the background
 * Exposes an API over D-Bus / gRPC / whatever IPC you standardize on
 * Apps hand off jobs to `btsd` with metadata, progress hooks, cancellation, etc.
 
-### 🪟 User Interface
+#### 🪟 User Interface
 
 A unified place (in status bar / system tray / sidebar) showing:
 
@@ -1540,30 +1540,30 @@ Each collapsible, with sub-items.
 
 ---
 
-## 🧩 Integration Examples
+### 🧩 Integration Examples
 
-### File Manager
+#### File Manager
 
 * Drag-and-drop huge file between folders? File manager fires an async copy job via `btsd`, then exits or closes — operation continues in the background.
 
-### Browser
+#### Browser
 
 * Downloads get passed off to BTS; browser can be closed while download continues.
 * You can even pick up/resume from other devices (if BTS supports syncing job metadata).
 
-### Software Updater
+#### Software Updater
 
 * Schedule updates like you would with cron, but UI-driven.
 * “Only install when idle”, “ask before rebooting”, “don’t use more than 20% disk I/O bandwidth”, etc.
 
-### Multimedia
+#### Multimedia
 
 * Podcast client hands off media fetches to BTS
 * Video editor queues encoding job to BTS and closes the window — it keeps working
 
 ---
 
-## 🔐 Security & Stability
+### 🔐 Security & Stability
 
 * Jobs run in controlled sandboxes (e.g., systemd services, containers, or some lower-level job supervisor)
 * If the app dies, the job keeps going
@@ -1572,7 +1572,7 @@ Each collapsible, with sub-items.
 
 ---
 
-## 🔍 Discoverability
+### 🔍 Discoverability
 
 * BTS UI gives an obvious indicator that background work is happening
 * *No more silent CPU usage black holes or "WTF is eating my disk" confusion*
@@ -1580,7 +1580,7 @@ Each collapsible, with sub-items.
 
 ---
 
-## 💥 Bonus Features
+### 💥 Bonus Features
 
 * **Offline-capable**: queue a job now, it starts when the network comes back
 * **Profiles**: “Battery Saver Mode” limits concurrency / rate limits everything
@@ -1589,7 +1589,7 @@ Each collapsible, with sub-items.
 
 ---
 
-## TL;DR
+### TL;DR
 
 Offload all background jobs to a **system-level steward**, free them from fragile app windows, and give users a single, clear place to monitor and control them. This kills a *ton* of modern UX pain points in one go — especially for non-technical users who still want control.
 
@@ -1609,9 +1609,9 @@ Here’s how it would work:
 
 ---
 
-## 🔄 Torrent Integration with BTS
+### 🔄 Torrent Integration with BTS
 
-### ✅ **Use Case Coverage**
+#### ✅ **Use Case Coverage**
 
 * File downloads (traditional `.torrent` files or magnet links)
 * Background streaming from torrent sources (e.g. PeerTube, WebTorrent)
@@ -1619,9 +1619,9 @@ Here’s how it would work:
 
 ---
 
-## 🧩 How it Fits into Your System
+### 🧩 How it Fits into Your System
 
-### 🎯 Job Submission
+#### 🎯 Job Submission
 
 * Apps or browser hand off `.torrent` or magnet link to BTS with optional metadata:
 
@@ -1630,20 +1630,20 @@ Here’s how it would work:
   * “Only stream first media file”
   * “Stop seeding after 1.0 ratio”
 
-### 🪟 User Interface
+#### 🪟 User Interface
 
 * Shown in the Downloads or Transfers category of BTS UI
 * Shows swarm info (peers, seeds, ratio, DHT status), piece availability
 * Streamable torrents get a play button (e.g. click → launch in media viewer)
 
-### 🔄 Streaming Support
+#### 🔄 Streaming Support
 
 * BTS exposes a local HTTP endpoint like `/bts/torrent/{id}/file/{index}` so the built-in media viewer can stream it
 * Can preload the file and stream as it downloads (like WebTorrent does)
 
 ---
 
-## 💻 Implementation Options
+### 💻 Implementation Options
 
 * Wrap or embed a libtorrent-based engine (or Aria2, or WebTorrent hybrid) into `btsd`
 * Expose a D-Bus/gRPC API to control torrent jobs (pause, seed, stop, get metadata)
@@ -1651,7 +1651,7 @@ Here’s how it would work:
 
 ---
 
-## 🔐 Privacy & Control
+### 🔐 Privacy & Control
 
 * All traffic is visible and manageable in BTS
 * Users can:
@@ -1662,7 +1662,7 @@ Here’s how it would work:
 
 ---
 
-## 🌍 Federation / Peer Content Use Case
+### 🌍 Federation / Peer Content Use Case
 
 * PeerTube instance sends a magnet link or WebTorrent stream → plays in your media app, downloads in background
 * Shared project includes torrents for bulky media assets
@@ -1670,7 +1670,7 @@ Here’s how it would work:
 
 ---
 
-## 🧠 TL;DR
+### 🧠 TL;DR
 
 > *Treat torrents as a first-class background job type in your OS — just like HTTP downloads, sync operations, or software updates.*
 
@@ -1690,9 +1690,9 @@ Hell yes — building IndieWeb principles *directly into the OS* is a powerful m
 
 ---
 
-## 🪪 Identity First: Domains as Personas
+### 🪪 Identity First: Domains as Personas
 
-### 🔹 Core Idea
+#### 🔹 Core Idea
 
 > Your **domain is your identity** — not a login name on some corporate silo.
 
@@ -1702,9 +1702,9 @@ Hell yes — building IndieWeb principles *directly into the OS* is a powerful m
 
 ---
 
-## 🧰 System Integration Touchpoints
+### 🧰 System Integration Touchpoints
 
-### 🔧 1. **Domain Setup Wizard**
+#### 🔧 1. **Domain Setup Wizard**
 
 * Helps people:
 
@@ -1715,7 +1715,7 @@ Hell yes — building IndieWeb principles *directly into the OS* is a powerful m
 
 ---
 
-### ✍️ 2. **Built-in Site Builder**
+#### ✍️ 2. **Built-in Site Builder**
 
 * Like Haiku's BeHappy crossed with a CMS, but **local-first**, Git-backed.
 * Export to static site, deploy via SFTP, rsync, or Git push.
@@ -1734,7 +1734,7 @@ Hell yes — building IndieWeb principles *directly into the OS* is a powerful m
 
 ---
 
-### 🧩 3. **Project Integration**
+#### 🧩 3. **Project Integration**
 
 Projects could:
 
@@ -1744,7 +1744,7 @@ Projects could:
 
 ---
 
-### 🧑‍🤝‍🧑 4. **People-Following Model**
+#### 🧑‍🤝‍🧑 4. **People-Following Model**
 
 * Instead of subscribing to apps, you follow **people** via their domain.
 * System fetches their h-feed or ActivityPub outbox, builds your unified content stream.
@@ -1752,7 +1752,7 @@ Projects could:
 
 ---
 
-## 💬 Social Interaction and Protocols
+### 💬 Social Interaction and Protocols
 
 * **WebMentions** sent when you link to someone’s post
 * **ActivityPub bridge** as a daemon for richer interaction (maybe modular)
@@ -1761,7 +1761,7 @@ Projects could:
 
 ---
 
-## 🔐 IndieAuth & Logins
+### 🔐 IndieAuth & Logins
 
 * Use IndieAuth to log in to services and apps.
 * The OS **auth daemon** can act as an IndieAuth provider and consumer.
@@ -1769,7 +1769,7 @@ Projects could:
 
 ---
 
-## 🧠 TL;DR
+### 🧠 TL;DR
 
 Your OS becomes:
 
