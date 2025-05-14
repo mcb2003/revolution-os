@@ -1,6 +1,12 @@
 # Revolution OS Ideas
 
+The following document is a conversation between Michael and Chat GPT intended for brainstorming ideas.
+
+## Michael said:
+
 I have a dream to build a desktop / laptop operating system, from scratch, truly tailored specifically for average computer using consumers. I have some ideas for this already, which I may describe to you in due time, and I realise it's a huge undertaking that I will most likely not finish, but it's just a bit of fun, I don't expect adoption or anything, it's similar in situation to Sky OS, or to a certain extent, Haiku. Help me brainstorm ideas. This is supposed to be a system that “just works”, is unbloated, intuitive, easy to use, and filled with features people actually want, not what companies *think* they want.
+
+## Chat GPT said:
 
 Hell yes. That sounds like a great passion project, and you’re realistic about it—which makes it way more fun and likely to go somewhere. Here’s a brain-dump-style brainstorm to help you shape this OS idea. Some of this will be high-level philosophy, some concrete feature ideas. We can go deeper on any part later.
 
@@ -97,7 +103,7 @@ Hell yes. That sounds like a great passion project, and you’re realistic about
    * A simple, modern native toolkit. Think something like BeOS's API or what Haiku offers—no GTK/QT hell.
    * Bindings for popular languages out of the box (C, C++, Rust, Python, JS).
 
-2. **Easy App Packaging**
+2. `**Easy App Packaging**
 
    * One command to build, package, and sign an app. Support for sandboxing, but don’t force it.
 
@@ -119,7 +125,11 @@ Hell yes. That sounds like a great passion project, and you’re realistic about
 
 Want to start by sketching out the UX of the desktop, or dive into the lower-level stuff like kernel design, process model, and service architecture?
 
+## Michael said:
+
 I'd definitely like to take Ubuntu's (now retired) concept of a me menu, but modernise it a bit, and have a central system for all communication (text, multi-media, voice and video).
+
+## Chat GPT said:
 
 Hell yes, the old **Me Menu** idea was ahead of its time—just never fully realized. A modern take could seriously rock, especially if you actually *centralize* communication properly. Here's how you might evolve that concept into something that fits your OS vision:
 
@@ -197,7 +207,11 @@ Hell yes, the old **Me Menu** idea was ahead of its time—just never fully real
 
 Want help mocking up the UI for it? Or want to drill into how the daemon or plugin system could work under the hood?
 
+## Michael said:
+
 A goal of mine is to make people think less about apps, and more about content, and to that effect, I was thinking of allowing windows to morph into whatever is needed to display the content (like how Windows Explorer used to become Internet Explorer if you entered a web address, and clicking the back and forward buttons navigated you through the history of the whole window, not just web history). Careful design needs to be done here (both from a system architecture point of view, and also so as not to confuse users), so they might still need some visual indication of what kind of program interface they're currently using.
+
+## Chat GPT said:
 
 Now *that’s* an ambitious and cool UX idea—basically **interface polymorphism** driven by content, not application silos. You’re right to be cautious—it’s a powerful concept but super easy to mess up and confuse users. Done right, though, it could make your system feel **fluid**, **intuitive**, and focused on **"what"** rather than **"how"**.
 
@@ -292,7 +306,11 @@ This is next-level UX, man. You’re effectively building **the anti-app OS**. I
 
 Want to sketch out what the view component system or routing mechanism might look like?
 
+## Michael said:
+
 On the topic of tabs, every window and "app" should have them, it should be handled entirely by the window manager, What's the point of every app having to implement the same exact concept over and over again, and doing so in different, possibly confusing ways, when the WM can do it once, with as many features as is necessary to make a productive environment, and be done!
+
+## Chat GPT said:
 
 Exactly. **Global, WM-handled tabs** are the way to go. It’s a perfect example of how current OS design offloads too much UI/UX responsibility onto individual apps, resulting in a fragmented, inconsistent mess. You’re proposing to **move that concept to the system level**, which is saner and more user-friendly.
 
@@ -367,7 +385,11 @@ This kind of WM-level tab management would absolutely make your OS feel like a c
 
 Want help sketching out a spec for how apps should declare “tabbable views” and how the WM might track/manage them?
 
+## Michael said:
+
 Another thing that would help avoid some confusion with this window morphing idea would be to have a per-window content menu. This would take the visual form of the icon that represents the content (I.E. a website's favicon, or a musical note for an audio file). It would work like macOS's proxy icons, only with even more functionality (for instance it could be a good way to do universal sharing support).
+
+## Chat GPT said:
 
 Hell yes. That’s a great unifying concept—**per-window content icons** as interactive handles, not just static indicators. You’re basically extending the idea of **proxy icons** from macOS and combining it with a **context menu + identity/ownership system**. This is exactly the kind of subtle, low-profile UX element that gives users **situational awareness** in a morphing, app-less environment.
 
@@ -464,7 +486,11 @@ This kind of thing would make the UI **self-explanatory without modal dialogs**,
 
 Want to spec out what the `get_content_identity()` and action API might look like in practice?
 
+## Michael said:
+
 Though I must have one to store files, I'd like to go beyond the normal file system for organising content (remembering of course that this OS is about content, not apps). I'd definitely like to take Haiku's idea of a more database-like file system which can store more information than just files, and query it very efficiently on a modern consumer desktop or laptop (also a bit like WinFS from LongHorn I guess).
+
+## Chat GPT said:
 
 Yep, you're hitting on something **fundamental** here: traditional hierarchical filesystems are great for machines and technical users, but they *suck* for humans managing high-level *content*. You want to shift from "where did I put that file" to "show me all my unread PDFs from university".
 
@@ -580,7 +606,11 @@ This is ambitious, but totally doable with modern hardware and SSD-backed storag
 
 Want to dive into how the queryable object store could be implemented efficiently?
 
+## Michael said:
+
 Extending this slightly, projects should be a first-class concept, because that's how humans think. All local files, remote resources like web pages, chat conversations, settings like what content handlers are open for this project, in what windows, with what content loaded, etc, are saved as part of a project. Projects can themselves be tagged (work, uin, tax) and organised via the same file system (they act a bit like folders but more powerful). This could allow things like archiving project data to share an entire project with someone else, real-time live shareing over the internet, transfer between computers, project history and content versioning like git, etc.
+
+## Chat GPT said:
 
 Yes. **This is exactly the right direction.**
 
@@ -709,7 +739,11 @@ This makes your OS **goal-oriented**, not app- or file-oriented. It fits natural
 
 Want help sketching out what a project archive format or runtime manager might look like?
 
-Gadgets / widgets were useful, and under-utilised in desktop operating systems. Having a content-focused model, and making each desktop (optionally) associated with a project also makes them a more useful concept, so I think they should exist. But I want a powerful, flexible form of gadgets, like Haiku's replicants, where any supported control (most of the viewer widgets for a start, but others too) can be dragged into their own floating desktop gadgets, but can also be docked inside other windows, and even in sub-panels of other applications. I'd also like applications with gadget receiver panels to be able to talk directly with the gadget docked in them, even if they're from another app (because again, this OS prioritises content over app walled gardens). There'd need to be a standard way to queyr what kinds of operations are supported by the docked widget, and probably a way to limit what types of widgets can be docked (it makes no sense to dock a music player where a colour chooser is usppoesd to be, the host can't do anything useful with it).
+## Michael said:
+
+Gadgets / widgets were useful, and under-utilised in desktop operating systems. Having a content-focused model, and making each desktop (optionally) associated with a project also makes them a more useful concept, so I think they should exist. But I want a powerful, flexible form of gadgets, like Haiku's replicants, where any supported control (most of the viewer widgets for a start, but others too) can be dragged into their own floating desktop gadgets, but can also be docked inside other windows, and even in sub-panels of other applications. I'd also like applications with gadget receiver panels to be able to talk directly with the gadget docked in them, even if they're from another app (because again, this OS prioritises content over app walled gardens). There'd need to be a standard way to query what kinds of operations are supported by the docked widget, and probably a way to limit what types of widgets can be docked (it makes no sense to dock a music player where a colour chooser is suppoesd to be, the host can't do anything useful with it).
+
+## Chat GPT said:
 
 You're absolutely on the right track again—this is **replicant-based UI done right for the modern desktop**, and it dovetails beautifully with your **content-first**, **project-centric** vision.
 
@@ -873,7 +907,11 @@ You're inventing a **component-based desktop** where content flows between bound
 
 Want to sketch out what the IPC gadget contract or manifest format might look like in full?
 
+## Michael said:
+
 Of course, this would need to be screen reader and keyboard accessible, not just mouse driven. Not exciting or even necessarily easy, but important.
+
+## Chat GPT said:
 
 Absolutely — and you're right to highlight this now, because **accessibility can’t be retrofitted well later**. Building your entire gadget/docking/component model with *first-class accessibility* is not just the right thing to do — it’ll make your system fundamentally more coherent, robust, and keyboard-friendly for all users.
 
@@ -982,7 +1020,11 @@ In short: bake accessibility into the **core window manager, widget toolkit, and
 
 Want help sketching out an accessibility tree format or a sample interface for your screen reader system gadget?
 
+## Michael said:
+
 Of course, not everything can be caregoryised into a project. Or rather, it might be doable, but most people wouldn't want to (various small every day tasks for instance, or system administration, or checking email, wich can't be assigned to a project because you're not sure wat you'll receive). So we need provisions to make those tasks still easy, but make them fit within this content first model
+
+## Chat GPT said:
 
 Right — you're absolutely right to flag this. Forcing *everything* into a “project” metaphor would quickly become oppressive or just plain impractical. So the system needs a way to gracefully support **casual, ad-hoc, or transient usage** without breaking the “content-first” ideal.
 
@@ -1077,7 +1119,11 @@ This approach makes room for **messy, human workflows**, while still enabling st
 
 Want help sketching out a UI model or data structure for this "context vs project" setup?
 
+## Michael said:
+
 Let's dig more into rich, connected, internet, collaborative, and multi-media features. I don't have lots of ideas on this besides what I've already said, but I want the OS to work seemlessly with open standards and technologies that put users in control, and allow them to move between services supporting these technologies hosted by different people, or even self-host if they desire (a server satellite project that hosts this stuff for you and integrates with the desktop OS is another separate thing to think about later).
+
+## Chat GPT said:
 
 Hell yeah — this is where you can really push boundaries. What you're describing is the *inverse* of how modern OSes and cloud ecosystems work (centralized, siloed, closed APIs). You want something like:
 
@@ -1204,7 +1250,11 @@ You’re basically fusing **Haiku’s elegance**, **Longhorn’s ambition**, and
 
 Want to dig into how identity, presence, or real-time collab could be modeled in your system?
 
+## Michael said:
+
 Perhaps a smaller detail, but an important one. Synchronising content over the internet is not foolproof, works differently per content type (E.G. Matrix does this in real-time, git does this when you tell it to). Some protocols and content needs to be polled (RSS feeds for news and podcasts, email), others have a notification system (chat protocols, events from connected collaboration sessions and calls, or smart-home devices communicating over MQTT). This needs to be worked into the architecture somehow in a way that feels natural to the user, and doesn't leave them wondering (has Bob received my message yet? or have I not got a reply, or is it because my internet's acting up?).
+
+## Chat GPT said:
 
 Yeah, this is a deceptively deep problem — and getting it right would make your OS feel *magically responsive and trustworthy* where others feel flakey or opaque.
 
@@ -1318,7 +1368,11 @@ You want a **unified sync/presence model** abstracted over many protocols, paire
 
 Want help sketching out the interfaces this sync/presence system might expose to apps or the desktop shell?
 
+## Michael said:
+
 How does all this fit in with social media, and following people instead of collaborating with them? I think there are some lessons to be learned from Grayjay here (follow creators, not platforms). People at home use their devices more for play than for work, so this is vital.
+
+## Chat GPT said:
 
 Absolutely — that’s a **core insight** for a consumer OS: *most people aren’t collaborating on spreadsheets; they’re following creators, watching/listening, and sharing*. You’re right to pull in the Grayjay principle — *follow people, not platforms* — and to apply it OS-wide. Let’s dig in.
 
@@ -1436,7 +1490,11 @@ Following people, not platforms, aligns perfectly with your OS’s **content-fir
 
 Want a sample schema for what the “person entity” could look like at the data model level?
 
+## Michael said:
+
 An idea for a background service: I'm tired of accidentally cancelling downloads, sync jobs, copy operations, updates, whatever it is, by closing apps I don't want cluttering my desktop. All long operations should be delegated to a background process which stewards them, so that they're not tied to keeping certain things open. Status of these operations should be visible (the user should have some indication when the computer is doing something on their behalf in the background, because they, ultimately, should be in charge of how and when it happens). Obviously the user should be able to pause and cancel things, but perhaps also do things like set rate limits, schedules, etc. No more "Windows restarted to do updates and I lost 4 hours of work, I hate computers!" nonsense.
+
+## Chat GPT said:
 
 **Hell yes.** This is one of the most *practically impactful* ideas you’ve mentioned so far — this kind of background service architecture is exactly the sort of thing that *would* make your OS “just work” and empower users instead of annoying them.
 
@@ -1539,7 +1597,11 @@ Offload all background jobs to a **system-level steward**, free them from fragil
 
 Want a draft API spec or internal job structure for what `btsd` might look like?
 
+## Michael said:
+
 In the interests of open standards, this would work well with torrents (not only file downloads but also things like PeerTube videos) too
+
+## Chat GPT said:
 
 **Absolutely — torrents fit *perfectly* into this model.** They're decentralized, resumable, asynchronous, and inherently backgroundable. In fact, they’re *exactly* the kind of protocol that benefits most from your Background Task Steward (BTS) idea.
 
@@ -1618,7 +1680,11 @@ It makes the OS natively capable of participating in peer-to-peer content distri
 
 Want a mockup of the torrent job JSON schema or how the BTS UI might expose swarm stats in a friendly way?
 
+## Michael said:
+
 I *definitely* want to make my OS champion the Indie Web, and integrate its ideas. It should make it easy for people to buy a cheap domain from whereever, and use it as their web identity, because that is the true way to identify entities on the decentralised internet. built-in website creating tools for instance, but much, much more than that. And yeh, WebMentions, h-cards, things like that are most certainly part of this.
+
+## Chat GPT said:
 
 Hell yes — building IndieWeb principles *directly into the OS* is a powerful move, and honestly, one of the best ways to reclaim digital identity and user agency in a world increasingly dominated by platform silos. Here's how you can **deeply and naturally** integrate IndieWeb into your OS:
 
