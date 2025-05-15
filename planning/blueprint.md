@@ -1,0 +1,7 @@
+# Revolution OS Blueprint
+
+The typical operating system experience is defined by apps. Most tech companies have their own apps for everything—from social networks to stocks, to media players, and so on. If you want to talk to your friends, but they're all on different messaging platforms, you have to open several different apps to talk to them all. In addition, if you want a simple OS that works for you out of the box, you usually have to sacrifice your freedom to do whatever you want with your computer. You can certainly install a Linux distribution and gain that freedom back, but that means sacrificing much of the simplicity you get from OSes like Windows or macOS. In our opinion, this is wildly unintuitive and unacceptable.
+
+What if we told you there's a better way? A way for you to talk to your friends from the comfort of a single app, regardless of the platform they're using? A way for you to do whatever you want with your computer without sacrificing the simplicity that enables even your grandma to use it with no problems? A system that respects your privacy so much that everything you'd ever need to safeguard your identity is built directly into the OS?
+
+This is Revolution OS—a future-proof operating system that seeks to completely change the way we use modern devices. In this document, we'll take you on a tour of this theoretical OS and show you everything we plan to do with it. We hope we can win you over to this new way of personal and business computing!
