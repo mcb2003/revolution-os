@@ -1782,3 +1782,249 @@ All from a domain you own, via open formats you control.
 ---
 
 Want a sketch of how the "Publish" UI might look in a Project window, or what the IndieAuth identity wizard flow might include?
+
+## Michael said:
+
+Everyone hates Windows update wasting their time, yet updates are very important for security. So updates should be online (I.E. in the background while the system is running). This is easy for parts of the system you're not using, but for parts you have open, it could be tricky. I propose we therefore design it into the API. When an app or component needs updating, the user is notified via a banner, and can click restart to do so. The OS essentially performs an exec() from Posix, to load the new software. All open handles are kept and maintained, and the user-mode software itself can hook an API to serialise any state to disk (or a RAM disk), and then the updated code can deserialise this data, rebuild internal data structures with the existing handles, etc. It's complex, and hard to get right, but I think it could offer very fast application restarts without losing progress, and in cases where it simply cannot be supported, wch can fall back to updating it when the app is closed.
+
+## Chat GPT said:
+
+Hell yes — you're tackling the problem at the right level: **the OS should make hot-swapping apps and updates a first-class feature**, instead of kludging around it with reboots, session restores, or forcing a restart. This is how you do painless updates *right* — secure *and* respectful of the user's time.
+
+Here’s a breakdown of how your plan could work, and what’s needed to make it real:
+
+---
+
+### **Core Mechanism: Live Component Swapping**
+
+#### 1. **Version-Aware Process Restart (à la `exec()`)**
+
+* Every app/component registers an *updateable entrypoint*, with:
+
+  * A unique persistent ID (to keep track of state)
+  * A serialise/deserialise interface (export state to disk or RAM)
+  * A list of external handles or shared memory regions it’s okay to hold across reloads
+* When an update is available:
+
+  * App gets a banner: “An update is ready, click to restart with new version”
+  * User clicks → state is serialised, process is re-exec’d with new binary
+  * OS passes in:
+
+    * Original handle list (e.g. file descriptors, sockets, pipes)
+    * State blob path
+    * Update context (what version to load, flags, etc.)
+
+---
+
+### **2. System-level Support**
+
+#### Memory Handles & IPC Handles Must Be Version-Safe
+
+* File descriptors and sockets are fine
+* Shared memory regions must have a stable ABI
+* Message queue protocols or pipes must support schema evolution (think Cap’n Proto or protobufs with versioning)
+
+---
+
+### **3. Toolkit & Runtime Support**
+
+Make this dead simple for developers:
+
+* Provide high-level APIs like:
+
+  ```c++
+  App::on_save_state([](StateWriter& w){ w.write("openTab", currentTab); ... });
+  App::on_restore_state([](StateReader& r){ currentTab = r.read("openTab"); ... });
+  ```
+* Provide wrappers around `main()` to handle cold vs hot restarts:
+
+  ```c++
+  int main(int argc, char** argv) {
+      if (Update::is_hot_restart()) {
+          Update::restore_state(...);
+      } else {
+          App::start_fresh();
+      }
+  }
+  ```
+
+---
+
+### **4. Progressive Fallback**
+
+Not all apps can be updated live — no problem:
+
+* If the app says “I can’t live-reload”, mark it for restart-on-close
+* If it's a core system component (e.g. compositor, shell), spin up a *shadow instance*, migrate users over, kill old
+
+---
+
+### **5. Kernel/OS Hooks**
+
+* Scheduler support: deprioritise old binary processes once new ones are live
+* Filesystem-level versioning or overlayFS-style swap to support atomic binary replacement
+* Process supervisor that knows how to “hot-replace” things, similar to Erlang's model
+
+---
+
+### **6. UI**
+
+* Simple, obvious banner: "New version of X is ready. \[Restart Now] \[Later]"
+* Show progress indicator: “Restarting X… Done”
+* Fallback list: “These will update when you next close them: Y, Z”
+
+---
+
+### **7. Bonus: System Services**
+
+For daemons/background services:
+
+* They can register themselves as hot-reloadable too
+* Similar state dump/reload support
+* For services where full reload isn’t safe (e.g. driver talking to fragile hardware), use staged drain + restart + reconnect pattern
+
+---
+
+### **Benefits**
+
+* Fast updates (no waiting 15 mins while Windows Updates "configures features")
+* No loss of work or context
+* Encourages devs to treat restart/resume as a feature, not a panic scenario
+* Security patches can be pushed immediately, safely, and invisibly
+
+---
+
+### **Inspiration Sources**
+
+* Erlang hot code swapping
+* QEMU's live migration features
+* Haiku’s BFS attributes for state persistence
+* Chrome’s multi-process architecture + tab crash recovery
+* systemd socket activation and binary replacement
+
+---
+
+If you want, I can sketch a basic process state format design, or write up a simple mockup of the restart protocol between OS and app. This is one of those hard things that, if built well, becomes invisible magic to the user — the kind that makes people *love* an OS.
+
+## Michael said:
+
+The \[de]serialisation scaffolding for this can also be used for desktop session, and individual app session resumption, which is important because it helps people pick up where they left off. They should have options, though, to control when and how session resumption happens, because you don't want people saying “No, please don't waste 5 minutes opening those 60 tabs, I don't need any of them except this one”' or similar.
+
+## Chat GPT said:
+
+Exactly — this is where you *tighten the loop* between UX, system design, and developer ergonomics. If you're already implementing structured \[de]serialization for hot-updates, **reusing that same mechanism** for session management makes total sense.
+
+Here's how to design this cleanly and powerfully:
+
+---
+
+## **Session Restoration as a First-Class OS Feature**
+
+### **1. Shared State Serialization API**
+
+Apps implement this once, get both:
+
+* **Hot-update support**
+* **Session resumption**
+
+State blobs should include:
+
+* Open files/resources
+* In-app state (e.g. scroll position, input text)
+* Context (e.g. associated project, tags, window layout)
+* A timestamp and “reason” for the snapshot (e.g. shutdown, update, crash recovery)
+
+---
+
+### **2. Session Management UI**
+
+When booting or launching an app:
+
+* If a saved session is available, **prompt non-invasively**:
+
+  ```
+  "Resume last session? (60 tabs, 1.4GB memory)"
+  [Resume All] [Pick Tabs…] [Start Fresh]
+  ```
+
+* Bonus: show recent session summaries (timestamp, content overview, memory footprint, etc.)
+
+* Default to “Start Fresh” if system is low on RAM or user disabled auto-resume globally or per-app.
+
+---
+
+### **3. Granular Control**
+
+Settings available per app *and* globally:
+
+* Auto-resume on startup?
+* Ask before resuming?
+* Always start fresh?
+* Show resume prompt if session is older than X hours?
+* Limit how many items are restored automatically?
+
+These would be managed in a single unified "Session & State" control panel.
+
+---
+
+### **4. Modular Session Layers**
+
+Think of it like this:
+
+* **Per-window**: "Restore this browser window and its tabs"
+* **Per-app**: "Restore this image editor with the last opened projects"
+* **Per-project**: "Restore all apps and windows associated with project X"
+* **Per-user**: "Restore the full desktop session from yesterday"
+
+And let the user control restoration at any of those levels.
+
+---
+
+### **5. Dev Notes: Clean Session Isolation**
+
+Apps should ideally:
+
+* Not *depend* on session restoration to start
+* Tolerate partial resumption (e.g. if some files are missing)
+* Not auto-restore “heavy” state unless explicitly told to
+
+State blobs could be marked with weight:
+
+```json
+{ "tabs": [...], "stateSize": 1400, "isHeavy": true }
+```
+
+So you can restore "just the essentials" when appropriate.
+
+---
+
+### **6. Integration with Projects**
+
+Since you’re treating projects as the organizing principle:
+
+* **Restoring a project could include restoring its session**
+* Optionally let users "archive" a project with its session state for offline use or sharing
+
+---
+
+### **7. System Resume**
+
+When the OS reboots or logs back in:
+
+* Present a session summary: “Do you want to resume your previous desktop session?”
+* Offer options to:
+
+  * Restore everything
+  * Only restore specific apps
+  * Restore only projects marked as “active”
+
+---
+
+### **TL;DR UX Rule**
+
+**Users should never be punished for quitting or rebooting.**
+They should always be able to get back to where they were — *on their terms.*
+
+And thanks to your hot-update mechanism, this all fits *organically* into the same plumbing. Very Unixy, very clean.
+
+Want a mockup of what a session manager UI could look like?
