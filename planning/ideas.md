@@ -1816,9 +1816,9 @@ Here’s a breakdown of how your plan could work, and what’s needed to make it
 
 ---
 
-### **2. System-level Support**
+#### **2. System-level Support**
 
-#### Memory Handles & IPC Handles Must Be Version-Safe
+##### Memory Handles & IPC Handles Must Be Version-Safe
 
 * File descriptors and sockets are fine
 * Shared memory regions must have a stable ABI
@@ -1826,7 +1826,7 @@ Here’s a breakdown of how your plan could work, and what’s needed to make it
 
 ---
 
-### **3. Toolkit & Runtime Support**
+#### **3. Toolkit & Runtime Support**
 
 Make this dead simple for developers:
 
@@ -1850,7 +1850,7 @@ Make this dead simple for developers:
 
 ---
 
-### **4. Progressive Fallback**
+#### **4. Progressive Fallback**
 
 Not all apps can be updated live — no problem:
 
@@ -1859,7 +1859,7 @@ Not all apps can be updated live — no problem:
 
 ---
 
-### **5. Kernel/OS Hooks**
+#### **5. Kernel/OS Hooks**
 
 * Scheduler support: deprioritise old binary processes once new ones are live
 * Filesystem-level versioning or overlayFS-style swap to support atomic binary replacement
@@ -1867,7 +1867,7 @@ Not all apps can be updated live — no problem:
 
 ---
 
-### **6. UI**
+#### **6. UI**
 
 * Simple, obvious banner: "New version of X is ready. \[Restart Now] \[Later]"
 * Show progress indicator: “Restarting X… Done”
@@ -1875,7 +1875,7 @@ Not all apps can be updated live — no problem:
 
 ---
 
-### **7. Bonus: System Services**
+#### **7. Bonus: System Services**
 
 For daemons/background services:
 
@@ -1885,7 +1885,7 @@ For daemons/background services:
 
 ---
 
-### **Benefits**
+#### **Benefits**
 
 * Fast updates (no waiting 15 mins while Windows Updates "configures features")
 * No loss of work or context
@@ -1894,7 +1894,7 @@ For daemons/background services:
 
 ---
 
-### **Inspiration Sources**
+#### **Inspiration Sources**
 
 * Erlang hot code swapping
 * QEMU's live migration features
@@ -1918,9 +1918,9 @@ Here's how to design this cleanly and powerfully:
 
 ---
 
-## **Session Restoration as a First-Class OS Feature**
+### **Session Restoration as a First-Class OS Feature**
 
-### **1. Shared State Serialization API**
+#### **1. Shared State Serialization API**
 
 Apps implement this once, get both:
 
@@ -1936,7 +1936,7 @@ State blobs should include:
 
 ---
 
-### **2. Session Management UI**
+#### **2. Session Management UI**
 
 When booting or launching an app:
 
@@ -1953,7 +1953,7 @@ When booting or launching an app:
 
 ---
 
-### **3. Granular Control**
+#### **3. Granular Control**
 
 Settings available per app *and* globally:
 
@@ -1967,7 +1967,7 @@ These would be managed in a single unified "Session & State" control panel.
 
 ---
 
-### **4. Modular Session Layers**
+#### **4. Modular Session Layers**
 
 Think of it like this:
 
@@ -1980,7 +1980,7 @@ And let the user control restoration at any of those levels.
 
 ---
 
-### **5. Dev Notes: Clean Session Isolation**
+#### **5. Dev Notes: Clean Session Isolation**
 
 Apps should ideally:
 
@@ -1998,7 +1998,7 @@ So you can restore "just the essentials" when appropriate.
 
 ---
 
-### **6. Integration with Projects**
+#### **6. Integration with Projects**
 
 Since you’re treating projects as the organizing principle:
 
@@ -2007,7 +2007,7 @@ Since you’re treating projects as the organizing principle:
 
 ---
 
-### **7. System Resume**
+#### **7. System Resume**
 
 When the OS reboots or logs back in:
 
