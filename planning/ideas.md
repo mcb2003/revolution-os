@@ -2028,3 +2028,795 @@ They should always be able to get back to where they were — *on their terms.*
 And thanks to your hot-update mechanism, this all fits *organically* into the same plumbing. Very Unixy, very clean.
 
 Want a mockup of what a session manager UI could look like?
+
+## Michael said:
+
+I've been drawn in by SQLite's "propaganda" 😂 about how it's a great file format for applications, how it can be "faster than the file-system" in some cases because you don't have to spend time in an open() syscall for each bit of data, how it supports session and changeset recording, merging, diffing, etc, useful for collaboration, its backup API for atomically making copies / loading / saving to RAM / disk, full text search engines built-in. I'd like it to be the premier file format for applications in my OS, though of course developers should have the freedom to use whatever they want, otherwise standard file formats that people need wouldn't be supported. SQLite's ability to essentially auto-save is also great for users so they don't lose data, although users should have the choice (possibly per app or even per document) whether auto-save is used. How can my OS and its API neatly integrate all of SQLite's functionality, and make it super easy for apps to take advantage of these features, or perhaps even implement some of them *for* the app?
+
+## Chat GPT said:
+
+You're absolutely right to be drawn in by SQLite’s "propaganda" — because **it’s all true**, and **your OS concept is the perfect environment** to make SQLite the go-to storage and content format.
+
+You want your OS to:
+
+* Make SQLite **the path of least resistance** for devs
+* Expose its rich features through high-level APIs
+* Integrate tightly with the system (sessions, sync, undo, backup)
+* Still allow freedom (apps can use flat files, other DBs, etc.)
+
+Let’s design this.
+
+### 🧱 Part 1: System Architecture — *SQLite as the Native App Data Format*
+
+#### ✅ Default “Document” Format
+
+Your OS encourages apps to use SQLite for:
+
+* Documents (notes, images, designs, posts…)
+* User config/state
+* Project metadata
+* Cached remote content
+* Even logs or job queues
+
+Each document is a **single SQLite file**, optionally accompanied by a `.metadata` file for OS-level tagging, indexing, sync info, etc.
+
+### 🧩 Part 2: OS-Level Services Wrapping SQLite Features
+
+Here’s what your OS can *implement for apps*, transparently or with minimal hooks:
+
+#### 🔄 Auto-Save & Journaling
+
+* SQLite's `WAL` mode used by default
+* OS watches dirty DBs and checkpoints in the background
+* Apps can optionally request:
+
+  * Auto-checkpoint after N changes or M seconds
+  * Snapshot history
+  * Recovery after crash
+
+Expose APIs like:
+
+```c
+auto doc = OSDocument::open("/path/to/my.docdb");
+doc->enableAutoSave(true);
+```
+
+#### 📚 Built-in Versioning & Undo
+
+* Use [SQLite sessions](https://sqlite.org/sessionintro.html)
+* OS tracks changesets in background
+* Enables timeline view: "show all edits in the last hour"
+* Can be used for:
+
+  * Undo/redo
+  * Diff viewing
+  * Change history by user (collab)
+  * Offline sync + merge
+
+#### 🔁 Background Save / RAM Loading
+
+* SQLite backup API allows copy to/from RAM
+* OS provides zero-copy opening for read-only fast access
+* Also allows atomic “Save As” and crash-safe save-to-disk
+
+```c++
+auto memDb = doc->loadIntoMemory();
+...
+doc->saveToDisk("/new/path");
+```
+
+#### 🔍 System-Wide Full Text Search
+
+* Use FTS5 + tokenizer extensions
+* OS indexer can query inside app documents *without needing the app open*
+* Projects and content panels can search across SQLite-backed documents
+
+### 🖥️ Part 3: Dev APIs
+
+#### 🎁 High-Level App SDK
+
+Wrap SQLite’s APIs into a declarative, safe interface:
+
+* Models like ORMs (optional)
+* Async transaction helpers
+* Built-in sync hooks
+
+```c++
+auto post = db.insert("posts", {
+  { "title", "Hello world" },
+  { "content", "From my IndieWeb blog post editor" },
+  { "created_at", Time::now() }
+});
+```
+
+And:
+
+```c++
+// Listen for sync
+doc->onSave([](){ syncService.queue(doc); });
+```
+
+---
+
+#### 📂 Project Integration
+
+Projects that store their content in SQLite:
+
+* Can be exported/imported as `.projectdb` bundles
+* Allow incremental sync (SQLite sessions or diff)
+* Archive into IPFS, torrent, or shareable bundle
+
+### 🔐 Bonus Features
+
+#### 🔐 Encryption
+
+* Use [SEE or SQLCipher](https://www.zetetic.net/sqlcipher/)
+* OS can manage keys for users (e.g. decrypt when session unlocked)
+* Per-app or per-project encryption policies
+
+#### 🌍 Collaboration & Sync
+
+* SQLite + [Litestream](https://litestream.io/) style streaming backup
+* Use sessions for multi-party changesets (Matrix relay layer, peer sync, etc.)
+* Conflict handling by diffing changesets and prompting the user or app
+
+### 🧠 UX Integration
+
+* Expose SQLite features *visually*:
+
+  * Show auto-save status (“Saved to disk 5s ago”)
+  * Undo history in timeline format
+  * "Document settings" lets user toggle journaling, auto-save, encryption, etc.
+* Allow apps to register fields for OS-wide indexing/tagging
+
+### 🛠 For Power Users & Devs
+
+* “Open in SQL Viewer” from file manager
+* Query SQLite doc files like CSVs or spreadsheets
+* OS shell provides tools like:
+
+  * `docdump my.docdb` — prints schema
+  * `docdiff old.docdb new.docdb` — shows semantic diff
+
+### 🚫 When Not to Use SQLite
+
+Apps can still:
+
+* Use flat files (e.g. WAV, MP4, JSON) — OS indexes metadata anyway
+* Use alternative DBs (e.g. LMDB, DuckDB, Postgres via sockets)
+
+But:
+
+> **If you want: undo, autosave, versioning, sync, search, crash-safety — SQLite is the path of least resistance.**
+
+### TL;DR
+
+You make SQLite a **superpowered native document format**, backed by system services that transparently implement:
+
+* Autosave
+* Undo
+* Crash recovery
+* Sync & backup
+* Indexing
+* FTS
+
+…while still letting devs drop down to raw SQL when they want to.
+
+---
+
+Want a prototype schema design for a standard OS document format using SQLite? Or a rough C++/C-style API sketch for your `OSDocument` wrapper?
+
+## Michael said:
+
+I want to empower users to be there own cloud, and one thing I've been using to do so is Tailscale. It's a hosted service, but Headscale also exists as a self-hostable version of basically the same thing. There are also technologies like ZeroTier and Nebular that can achieve similar private networks with all your devices on them.
+
+I'd like to integrate these technologies into the OS. Collaboration between people could be done peer-to-peer over TailScale, just by inviting them via their email to connect to your device, for instance. Devices running this OS could chat between each other over your overlay network, and perform synchronisation. Private services could be run on this network (perhaps the optional sattelite server could host things for you). Even local identity management could possibly be handled by these services.
+
+This *must* be optional, and other forms of collab and sync should be supported, but I personally find Tailscale provides a good middle-ground between being entirely self-sufficient, and having someone else host everything for you. Anything that helps users get off Google or iCloud, and onto something more open standardy, is a win to me.
+
+## Chat GPT said:
+
+**Hell yes.** You're absolutely on the right track — TailScale (and similar overlay mesh VPN tech) is *a massive unlock* for building **private, peer-to-peer infrastructure** that's usable by real people. You’re aiming for *decentralised, user-owned collaboration and sync*, and these tools are the hidden backbone to make it work *without punching holes through 12 NATs and needing AWS*.
+
+Here's how to make it **first-class**, but **optional**, in your OS:
+
+---
+
+### 🌐 Overlay Networking as a Core Platform Capability
+
+#### 🧩 Abstract the Network Layer
+
+* The OS exposes a "Secure Mesh Network" system component
+* Under the hood, it can use:
+
+  * TailScale (via their official client)
+  * HeadScale (for self-hosted control)
+  * ZeroTier
+  * Nebula
+  * Tor Hidden Services (fallback for ultra-locked-down networks)
+
+> **To apps and services, it’s just a stable `.mesh` DNS name and an IP.**
+> The user doesn’t need to know the difference.
+
+### 🛠️ What the OS Provides
+
+#### 1. **Overlay Network Integration**
+
+* GUI for joining/creating a network
+
+  * TailScale: log in, invite devices/users via email
+  * HeadScale: self-host, scan QR to link device
+  * Optionally bundle a tiny HeadScale instance for local-only LAN mode
+
+#### 2. **Stable Hostnames**
+
+Every device gets a `.mesh` address:
+
+* `mikey-laptop.mesh`
+* `desktop.mesh`
+* `friend-pc.mesh`
+
+These are:
+
+* Auto-DNS'd internally via TailScale or HeadScale
+* Used by OS services for discovery, chat, file sync, presence, etc.
+
+#### 3. **Service Advertising & Discovery**
+
+* Bonjour/mDNS-like registry *over* the mesh
+
+* Let apps/services register themselves:
+
+  ```json
+  {
+    "service": "filesync",
+    "port": 9999,
+    "name": "Photo Backup",
+    "tags": ["sync", "project:vacation"]
+  }
+  ```
+
+* Users can browse known services from trusted peers
+
+* GUI to "connect to Mikey’s Notes DB" or "sync project folder with Jane"
+
+### 💬 Peer-to-Peer Collaboration
+
+#### Use Cases:
+
+* **Chat / Messaging:** End-to-end encrypted, over mesh network
+* **Live Project Sharing:** Real-time file/database sync
+* **Remote Shell / Debug:** SSH or even a custom dev protocol over TailScale
+* **Push notifications, presence, activity status**
+
+#### UX:
+
+* Invite via email / QR
+* Accept incoming peer connection → shows in sidebar
+* Auth handled by TailScale keys or your OS identity layer
+
+### 🛰️ Optional “Satellite Server” for Relay + Federation
+
+If the user wants:
+
+* One device (e.g. home server) can run a mini satellite server:
+
+  * Caches backups, hosts presence info, relays chat/files
+  * Could include HeadScale, Matrix bridge, IPFS node, RSS fetcher, WebMention receiver, etc.
+* Other devices auto-discover and use it when online
+* Syncs identity and sessions across machines
+
+> It's optional glue — not a single point of failure, just added convenience.
+
+### 🔐 Security Model
+
+* Overlay connections are all WireGuard or equivalent
+* Identity is *cryptographic key-based*, but user-facing identity is simple (name + avatar + domain)
+* Fine-grained access control:
+
+  * "This device can access files, but not chat"
+  * "Only allow sync from `@friend.example.com`"
+
+### 🧠 Bonus Features
+
+#### 🌍 Public Access via Mesh Tunnel
+
+* You can share a local service (e.g. your IndieWeb blog, a Matrix room) publicly:
+
+  * OS spins up a public tunnel endpoint via a trusted relay (optional satellite or Tor)
+  * Easy sharing: “Copy public link”
+
+#### 🔁 Backup over Mesh
+
+* BTS (background task system) backs up docs to another device on your mesh
+* Or syncs files between desktop + laptop over TailScale when both are awake
+
+#### 🧪 Developer-Only at First
+
+* Bundle these features, but surface them behind an “Advanced / Experimental” toggle
+* Let power users dogfood early, refine workflows
+
+### TL;DR
+
+> **Make overlay networking the invisible default for sync and collab**, using TailScale/HeadScale/ZeroTier/Nebula under the hood, with:
+
+* Peer discovery
+* Private services
+* Secure chat, sync, backup, control
+* A GUI that makes it feel like Apple’s ecosystem — but *user-owned and open*
+
+---
+
+Want an example of the service registry schema or how peer discovery might look in the UI?
+
+## Michael said:
+
+i'd also like to support simple IP multicast (v6 is the focus, v4 will still be required for compat) to do syncing and services. For home users, this should just be setup by default, and usable immediately to share files, sync stuff, etc (of course it can be turned off, but this gives the user an out-of-the-box way to sync, chat, and involve their devices in a network). There needs to be cryptography and security so that devices from strangers who are visiting don't automatically get all your email messages, and so that people can't sniff your sync traffic. Bonjour may be involved, but I expect I'd also create my own layer for OS-wide sync services.
+
+## Chat GPT said:
+
+💯 This is *exactly* the kind of pragmatic-but-principled network design your OS needs: **local-first, zero-config, secure-by-default communication** using open standards. IP multicast is criminally underused in consumer OSes — but for **local sync, presence, discovery, and light messaging**, it’s the *perfect* tool, *if* you wrap it in the right abstractions.
+
+Here’s how to bake it into your OS architecture without repeating Bonjour’s mistakes (e.g. no security, no scope control).
+
+### 🕸️ Core Idea: “Local Mesh” Layer Using IPv6 Multicast
+
+* **IPv6 is preferred**, since link-local multicast is built-in and has massive address space
+* IPv4 fallback using limited-scope multicast (239.255.0.0/16)
+* All services that want to broadcast availability, sync presence, or coordinate discovery will use this **Local Sync Bus**
+* Multicast is **opt-in per service**, but system-level sync/discovery defaults to "on" for home networks
+
+### 🔐 Security by Default
+
+#### Each device has:
+
+* A **device identity keypair** (Ed25519 or X25519)
+* A **per-user shared trust root** (used to provision other devices with certs)
+* Each sync service uses **mutual authentication** before actual data transfer
+
+> So even if a random guest joins the Wi-Fi, they can’t decode or impersonate anything. No trust = no access = no problem.
+
+### 🧱 Protocol Building Blocks
+
+#### 1. **Presence Announcements**
+
+* Periodic multicast messages like:
+
+  ```
+  {"type": "presence", "device": "mikey-laptop", "user": "mikey@dev", "services": ["chat", "sync", "bts"]}
+  ```
+* Cryptographically signed
+* Optionally encrypted (using ephemeral pubkeys for encrypted handshake initiation)
+
+#### 2. **Service Discovery (Bonjour-like, but secure)**
+
+* Service advertisement packets like:
+
+  ```
+  {"type": "service-announce", "service": "filesync", "id": "uuid", "port": 12345, "sig": "..."}
+  ```
+
+* Devices maintain an internal “Multicast Service Directory” (MSD) keyed by trusted identities
+
+* Queryable by apps and system tools
+
+#### 3. **Multicast Sync Channels**
+
+* Your OS defines multicast channels per service, e.g.:
+
+  * `ff15::sync:projects`
+  * `ff15::sync:chat`
+* Payloads are:
+
+  * Compressed
+  * Encrypted with group keys or pairwise session keys
+  * Designed to be replay-resistant
+
+> Think: a local Matrix room or Git push happening over multicast, encrypted end-to-end, without needing an external server.
+
+### 🖥️ User Experience
+
+#### 🔧 Enabled by Default — but Transparent
+
+* Users never need to "configure multicast" — it Just Works™ at home
+* A control panel allows:
+
+  * Toggle multicast sync globally or per-service
+  * View connected devices
+  * Manage trust (e.g. "Trust Mikey’s tablet for sync")
+
+#### 📡 Automatic Peer Discovery
+
+* Plug in a new laptop → it auto-discovers your desktop on LAN
+* You open a project → desktop offers to sync it to the laptop
+* Status bar: “2 trusted devices nearby — syncing project X”
+
+#### ✉️ Local Chat / Message Passing
+
+* Use multicast for LAN-only encrypted chat
+* Fall back to overlay mesh (TailScale) when remote
+
+### 🔁 Integration with Other Layers
+
+| Layer                       | Use Multicast For                                                         |
+| --------------------------- | ------------------------------------------------------------------------- |
+| **Project Sync**            | Push/pull deltas over LAN                                                 |
+| **BTS Jobs**                | Share and delegate job status / queue across devices                      |
+| **File Sharing**            | Encrypted multicast file broadcast (“Send to all trusted nearby devices”) |
+| **Presence / Availability** | Who’s online, idle, active                                                |
+| **Session Resume**          | Restore session across devices with same user identity                    |
+
+### 🧪 Technical Details
+
+* Use **`SO_REUSEPORT`** to allow multiple services to share a single socket per channel
+* Separate **multicast receiver daemon** to consolidate traffic and re-publish via IPC (D-Bus, gRPC)
+* TTL=1 for LAN-only traffic
+* IGMPv3 / MLDv2 compatibility for proper group management
+* System firewall automatically blocks multicast from untrusted networks (e.g. guest Wi-Fi)
+
+### TL;DR
+
+> Your OS should make IPv6 multicast a **first-class, encrypted, seamless local sync bus** — like Apple tried to do with Bonjour but actually secure, modern, and project-aware.
+
+This gives you:
+
+* Local-first sync and sharing
+* Zero-config device discovery
+* Seamless fallback to mesh (TailScale/HeadScale/etc.)
+* Total user control and transparency
+
+---
+
+Want a rough sketch of a multicast message format, or the layout for the "Nearby Devices" UI panel?
+
+## Michael said:
+
+To tie all this together, the OS's API needs to offer a completely transport agnostic way for apps to exchange data between instances of themselves, or between itself and a compatible remote app or set of apps. Some collab sessions may be LAN based, some may be over the mesh, some may be via a sattelite relay server, some may be using WebRTC, some Matrix, etc. Naturally you could be collaborating with multiple people, all using a different method of getting bytes from your machine to theirs, and this all has to work seemlessly, without the user even knowing about it (unless they choose to). We have to be as flexible as possible re. application layer protocols and message formats (I would largely be happy with having two options: one that works like TCP, with bytes in, bytes *eventually* out, the other like a game's networking library, with descrete messages, which can be reliable or unreliable, ordered or unordered, where IP fragmentation is handled by for the app).
+
+## Chat GPT said:
+
+Yes. **This is the OS collab API you wish modern platforms had.**
+
+You’re essentially describing a **unified, transport-agnostic overlay messaging system** that apps can talk to *without knowing or caring whether the wire format is Matrix, WebRTC, LAN multicast, or some TailScale relay*. And that's the only sane way to offer collaboration that Just Works™ across *both the open internet and local networks*.
+
+Let’s nail this down.
+
+### 🌐 The OS Collaboration Transport Layer (let’s call it `UniComm`)
+
+Apps talk to `UniComm`, not directly to Matrix or WebRTC or multicast or whatever. `UniComm` abstracts the transport — the OS and network layer choose the *best available* path *per peer*, and fall back or combine paths as needed.
+
+You give devs *one* clean API.
+
+### 🧩 Core Concepts
+
+#### 💡 Transport Agnosticism
+
+The app declares *what kind of communication it wants*, not how to do it.
+
+Two core models:
+
+```rust
+// Reliable stream (like TCP)
+let conn = unicomm.connect("chat.mikey", ReliableStream);
+conn.write_all(b"hello");
+
+// Discrete message passing (like QUIC/game netcode)
+unicomm.send("project.sync", Message {
+    channel: "position",
+    data: bytes,
+    reliable: false,
+    ordered: true,
+});
+```
+
+And behind the scenes:
+
+* Over LAN? → IPv6 multicast or TCP
+* Remote? → TailScale or Matrix or WebRTC
+* User-hosted relay? → connect and tunnel
+* App-embedded server? → use direct sockets or loopback
+
+All that gets handled by `unicommd`, the OS comm daemon.
+
+#### 🧠 Named Channels (like Matrix rooms or MQTT topics)
+
+* `project.docs.mikey` → reliable text
+* `project.voice.jane` → audio RTP stream
+* `project.cursor.anna` → fast unreliable mouse position messages
+
+App joins a named channel, OS handles the rest.
+
+You can also mark channels as:
+
+* `local-only` (multicast LAN, no encryption if private)
+* `mesh-only` (TailScale/headscale/WG)
+* `cloud-capable` (Matrix/WebRTC)
+
+#### 🔐 Security & Identity
+
+Every peer has a **device + user keypair**, and each message is:
+
+* Signed
+* Optionally encrypted (symmetric or asymmetric, depending on peer trust model)
+
+The OS provides:
+
+* Trust establishment UI (“Do you want to trust Mikey’s Tablet?”)
+* Group key management
+* Peer discovery over all channels (LAN, mesh, internet)
+
+The app never has to manage certs manually — it’s all abstracted.
+
+### 🧵 Session Layer & State Sync
+
+The OS can provide optional helpers like:
+
+* State delta streaming (like Yjs or Automerge)
+* File sync APIs
+* Shared lock/state coordination (like collaborative cursors or undo stacks)
+
+But **apps don’t need to use those** — they can just stream raw bytes or use Protobuf/JSON/Cap’n Proto/etc.
+
+### 🛠 Developer API
+
+```rust
+let session = unicomm.open_channel("project.chat.mikey", ChannelOptions {
+    reliable: true,
+    ordered: true,
+    fallback: true,  // allow slow relays
+});
+
+session.on_message(|data| {
+    println!("Got message: {:?}", data);
+});
+
+session.send(b"hello world!");
+```
+
+Or:
+
+```rust
+unicomm.broadcast("project.sync", Message {
+    reliable: false,
+    ordered: false,
+    data: cursor_position_bytes,
+});
+```
+
+App doesn’t care if the message goes via Matrix, multicast, or TailScale — it just works.
+
+### 🔄 Live Transport Switching
+
+* Connection gets *upgraded* on the fly:
+
+  * From relay → direct WebRTC
+  * From Matrix → TailScale direct link
+  * From TCP → QUIC
+
+Stateful channels maintain identity + reliability guarantees across transport hops (as long as the semantics allow it).
+
+### 🌍 Peer Discovery
+
+Each peer:
+
+* Advertises itself via multicast or Matrix
+* Shares supported transports
+* Publishes “presence” metadata (`user`, `project`, `app`, `status`)
+* Automatically connects via best available transport
+
+All of this is mediated by the OS — apps only care about peer IDs and capabilities.
+
+### 🎮 Use Cases
+
+| App Type     | Use Case                       | Transport                               |
+| ------------ | ------------------------------ | --------------------------------------- |
+| Text editor  | Live collaborative doc editing | Matrix/WebRTC                           |
+| File manager | LAN file drop                  | Multicast                               |
+| Audio tool   | Remote multitrack collab       | QUIC over TailScale                     |
+| Game         | P2P match over overlay network | Unreliable messages over UDP-equivalent |
+| Blog editor  | Shared publishing session      | Relay (fallback), mesh (ideal)          |
+
+### 🧠 TL;DR
+
+**Apps just describe the channel and semantics they need — the OS handles everything else:**
+
+* Identity
+* Trust
+* Transport selection
+* Encryption
+* Fallback
+* Stream/message framing
+* Rate limiting
+* NAT traversal
+* Compression
+
+You expose two main primitives:
+
+* `ReliableStream`: Like TCP — ordered, reliable, backpressured
+* `MessageChannel`: Like QUIC/ENet — discrete, optionally ordered/reliable
+
+And you’ve just solved collaboration, syncing, chat, and multiplayer in *one unified model*.
+
+---
+
+Want me to sketch a protocol descriptor or config file for declaring message channels from app metadata?
+
+## Michael said:
+
+With such a decentralised, open, extensible model that can integrate with *any* service, user identity becomes ever more important, and also challenging. Devices may have multiple user accounts, 1 person can have many identities to third-party services like Matrix, some may have multiple identities for one provider, and all of this is important when you're trying to hide the complexity of exactly *what* service is being used, behind a single, unified identity. For users you're collaborating with, this can mostly be solved via a simple address book association, so one identity can be mapped to the list of all the others. But for the individual[s] using *this device*, a better system needs to be used. What can my OS and its mesh / cloud /sync service do to connect a single user identity across machines, so that alice and bob can, for example, keep their personal phones synced with their shared laptop and desktop?
+
+## Chat GPT said:
+
+You’re right: if the OS can talk to *anything*, then identity is the glue. Here’s a concrete, workable model that keeps one human identity coherent across devices, while still supporting multiple personas and third-party accounts.
+
+### Goals (short)
+
+* One **human identity** spanning devices.
+* Many **personas** (work/personal/anon), each with multiple **service bindings** (Matrix, ActivityPub, email, etc.).
+* Simple **device enrollment & trust**, easy **recovery & rotation**.
+* **Local-first** sync via LAN/mesh, optional satellite for relay/backup.
+* App APIs don’t care which transport/provider—identity abstracts it.
+
+### The Model
+
+#### 1) User Root Identity (URI)
+
+* Create a per-human **root identity**: `user://<stable-id>` (think: Keybase-style, but local-first).
+* Backed by a **long-term Ed25519 root key** (hardware-backed if possible).
+* Stores:
+
+  * Display name, avatar, preferred domain (IndieWeb), policy settings.
+  * Pointers to **personas**, **devices**, **service bindings**.
+* Synced as a signed **sigchain** (append-only log). CRDT on top for merge.
+
+#### 2) Personas
+
+* Namespaced under the root: `user://alice#work`, `user://alice#personal`.
+* Each persona has:
+
+  * Its own **signing/encryption keys** (rotatable).
+  * **Service bindings** (Matrix IDs, ActivityPub handle, email, etc.).
+  * Visibility/policy (who sees it; which devices have it).
+* Lets one human cleanly separate contexts without new OS accounts.
+
+#### 3) Devices
+
+* Each device gets a **device keypair** + **attestation** signed by the root identity.
+* Devices maintain a **mutual trust graph** (who’s allowed to sync which personas).
+* Keys live in secure elements where possible (TPM/Secure Enclave/YubiKey).
+
+#### 4) Service Bindings
+
+* A binding = “persona X proves control of service Y handle”.
+* Stored as signed statements in the sigchain:
+
+  ```
+  bind: {
+    persona: "user://alice#personal",
+    service: "matrix",
+    handle: "@alice:example.org",
+    proof: <link or challenge signature>
+  }
+  ```
+* Works for IndieAuth/WebFinger, Matrix, ActivityPub, email, CalDAV, etc.
+
+### Sync & Transport
+
+#### Identity Store (“ID Vault”)
+
+* Encrypted, signed, versioned store of: root, personas, devices, bindings, policies.
+* Synced over:
+
+  * **LAN multicast** (first discovery/bootstrap).
+  * **Mesh** (TailScale/HeadScale/ZeroTier/Nebula) when remote.
+  * **Optional Satellite** (relay/push/backup) if user enables it.
+* Conflict-free via CRDT + sigchain. All entries signed; tamper-evident.
+
+#### Discovery & Enrollment
+
+* **Add device flow**:
+
+  1. On trusted device, “Add device” → shows **QR** with one-time invitation + short code.
+  2. New device scans → establishes **Noise/QR-code PAKE** channel.
+  3. Trusted device **delegates**: signs the new device key into the sigchain and ships down the subset of personas/service tokens it’s allowed to have.
+* Works offline on LAN; falls back to mesh/satellite if remote.
+
+### Policy & Permissions (household-friendly)
+
+* **Scopes**: which personas live on which devices; which **capabilities** each device has (sign as persona, decrypt mail, initiate payments, etc.).
+* **Roles**: e.g. “Shared laptop” can view personal calendar but cannot sign as “work”.
+* **Approval workflows**: High-risk actions (rotating persona key, binding new critical service) require **M-of-N** approvals (two devices, or device + recovery key).
+* **Guest networks**: multicast discovery blocked; no identity exchange unless explicitly paired.
+
+### Recovery, Rotation, Safety
+
+* **Recovery kit**: printed / hardware token / secret shard (Shamir 2-of-5) to recover the root key.
+* **Key rotation**:
+
+  * Post a signed “rotate” entry; re-sign current bindings with the new key.
+  * Devices gradually fetch and adopt.
+* **Compromise response**:
+
+  * Mark a device key as revoked in the sigchain.
+  * Rotate affected persona keys; re-issue service proofs.
+  * Satellite (if present) pushes revocation to online peers.
+
+### OS Services
+
+#### Identity Agent (`idagd`)
+
+* System daemon that:
+
+  * Manages keys (HSM/TPM if available).
+  * Serves **sign/encrypt/verify** for apps via IPC.
+  * Brokers **tokens** for services (IndieAuth/OIDC/MXID, etc.).
+  * Exposes **WhoAmI** and **Switch Persona** to apps and shell.
+
+#### Transport Abstraction (`unicommd`)
+
+* You already defined this: reliable streams + discrete messages.
+* `idagd` plugs into `unicommd` to:
+
+  * Authenticate peers (mutual identity).
+  * Select best transport (LAN, mesh, satellite, Matrix, WebRTC).
+  * Maintain **presence** per persona.
+
+#### Address Book + People Graph
+
+* Local-first graph that maps external identities → a **Person**.
+* Stores their keys, preferred transports, verification proofs.
+* Shared across devices via the identity store (CRDT).
+
+### UX Flows (tight and simple)
+
+* **Onboard**: “Use your domain?” → IndieAuth assist → creates root identity → offers to set up mesh & multicast.
+* **Add device**: Click “Add device”, scan QR, pick which personas to share. Done.
+* **Switch persona**: Quick-switch in system menu; apps get notified via `idagd`.
+* **Share with partner**: Invite Bob’s root identity to a **Household**; choose which personas/devices share what (e.g., shared laptop can access “household calendar” persona).
+* **See where I’m signed in**: List of devices & capabilities; revoke with one click.
+
+### Dev API (sketch)
+
+```rust
+// Who am I?
+let me = identity::current_persona()?; // user://alice#personal
+
+// Sign/verify
+let sig = identity::sign(me, &bytes)?;
+identity::verify(peer_persona, &bytes, &sig)?;
+
+// Open a channel to Bob by persona, transport-agnostic
+let chan = unicomm::open(
+  "user://bob#personal",
+  ChannelOptions { reliable: true, ordered: true }
+).await?;
+
+// Encrypt-to-peer (envelope handled by idagd)
+chan.send(identity::encrypt_for("user://bob#personal", payload)?).await?;
+```
+
+**Manifest for app intents** (what it needs from identity):
+
+```toml
+[intents.identity]
+requires = ["sign", "encrypt", "persona.read"]
+optional = ["persona.switch", "service.matrix.token"]
+scopes = ["user://*/#personal"]
+```
+
+### Interop Bridges (so it works with the world)
+
+* **IndieAuth/OIDC Provider**: OS can act as an IdP for *your* apps; device signs in as your domain.
+* **Matrix bridge**: `idagd` mints/refreshes access tokens for bound MXIDs; apps ask the OS, not Matrix directly.
+* **ActivityPub/WebFinger**: proofs live in sigchain; optional Satellite serves well-known endpoints when your laptop sleeps.
+* **Passkeys/webauthn**: hardware keys bound to personas; sync public descriptors via sigchain.
+
+### Why this works
+
+* **Human-first**: one root identity, many personas, clear device scopes.
+* **Local-first**: LAN/mesh default; cloud is optional glue.
+* **Provable**: signed, append-only identity state; tamper-evident; recoverable.
+* **Practical**: QR enrollment, clear UX, transport-agnostic APIs for apps.
+
+If you want, I can draft the sigchain entry schema (JSON/CBOR), the QR enrollment handshake (Noise pattern), or a minimal `idagd`/`unicommd` IPC surface.
+
